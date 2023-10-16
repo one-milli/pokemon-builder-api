@@ -1,14 +1,18 @@
 package com.example.pokemonbuilderapi.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name="user_pokemons")
+@Getter
+@Setter
 public class UserPokemon {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
 
     @ManyToOne
     @JoinColumn(name="user_id")
