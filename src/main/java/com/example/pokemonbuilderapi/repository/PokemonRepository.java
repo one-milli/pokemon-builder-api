@@ -1,4 +1,7 @@
 package com.example.pokemonbuilderapi.repository;
 
-public class PokemonRepository {
+import com.example.pokemonbuilderapi.model.Pokemon;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface PokemonRepository extends JpaRepository<Pokemon, Long> {
 }
