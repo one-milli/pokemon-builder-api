@@ -45,13 +45,13 @@ func main() {
 	r := mux.NewRouter()
 
 	// health check
-	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+	r.Handle("/health", enableCORS(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		response := map[string]string{"status": "API is up and running"}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(response)
-	})
+	})))
 
-	r.HandleFunc("/user-pokemon/{userId}", func(w http.ResponseWriter, r *http.Request) {
+	r.Handle("/user-pokemons/{userId}", enableCORS(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		userID := vars["userId"]
 
@@ -80,8 +80,20 @@ func main() {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(pokemons)
-	}).Methods("GET")
+	}))).Methods("GET")
 
 	fmt.Println("Server is running at http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
+}
+
+func enableCORS(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		if r.Method == "OPTIONS" {
+			return
+		}
+		next(w, r)
+	}
 }
