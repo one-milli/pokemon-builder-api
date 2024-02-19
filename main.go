@@ -13,14 +13,17 @@ import (
 )
 
 type UserPokemon struct {
-	UserID           int            `json:"user_id"`
-	MyPokemonID      int            `json:"mypokemon_id"`
-	PokemonID        int            `json:"pokemon_id"`
-	EffortValues     string         `json:"effort_values"`
-	IndividualValues string         `json:"individual_values"`
-	Item             string         `json:"item"`
+	UserID           int            `json:"userId"`
+	MyPokemonID      int            `json:"myPokemonId"`
+	PokemonID        int            `json:"pid"`
+	Name             string         `json:"name"`
+	Level            int            `json:"level"`
+	Nature           string         `json:"nature"`
+	EffortValues     string         `json:"evs"`
+	IndividualValues string         `json:"ivs"`
+	Item             sql.NullString `json:"item"`
 	Moves            string         `json:"moves"`
-	AbilityID        int            `json:"ability_id"`
+	AbilityID        int            `json:"abilityId"`
 	Notes            sql.NullString `json:"notes"`
 }
 
@@ -48,12 +51,12 @@ func main() {
 		json.NewEncoder(w).Encode(response)
 	})
 
-	r.HandleFunc("/user-pokemon/{user_id}", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/user-pokemon/{userId}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		userID := vars["user_id"]
+		userID := vars["userId"]
 
 		var pokemons []UserPokemon
-		query := "SELECT user_id, mypokemon_id, pokemon_id, effort_values, individual_values, item, moves, ability_id, notes FROM user_pokemons WHERE user_id = ?"
+		query := "SELECT userId, myPokemonId, pid, name, level, nature, evs, ivs, item, moves, abilityId, notes FROM user_pokemons WHERE userId = ?"
 		rows, err := db.Query(query, userID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -63,7 +66,7 @@ func main() {
 
 		for rows.Next() {
 			var p UserPokemon
-			if err := rows.Scan(&p.UserID, &p.MyPokemonID, &p.PokemonID, &p.EffortValues, &p.IndividualValues, &p.Item, &p.Moves, &p.AbilityID, &p.Notes); err != nil {
+			if err := rows.Scan(&p.UserID, &p.MyPokemonID, &p.PokemonID, &p.Name, &p.Level, &p.Nature, &p.EffortValues, &p.IndividualValues, &p.Item, &p.Moves, &p.AbilityID, &p.Notes); err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
