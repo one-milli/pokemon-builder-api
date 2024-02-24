@@ -44,6 +44,11 @@ func main() {
 
 	r := mux.NewRouter()
 
+	// root
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "Pokemon Builder API")
+	})
+
 	// health check
 	r.Handle("/health", enableCORS(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		response := map[string]string{"status": "API is up and running"}
