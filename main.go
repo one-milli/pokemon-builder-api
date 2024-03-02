@@ -27,6 +27,12 @@ type UserPokemon struct {
 	Notes            sql.NullString `json:"notes"`
 }
 
+type Ability struct {
+	ID     int    `json:"id"`
+	Name   string `json:"name"`
+	NameJa string `json:"name_ja"`
+}
+
 func main() {
 	dbUser := os.Getenv("DB_USERNAME")
 	dbPassword := os.Getenv("DB_PASSWORD")
@@ -85,6 +91,33 @@ func main() {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(pokemons)
+	}))).Methods("GET")
+
+	r.Handle("/abilities", enableCORS(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		rows, err := db.Query("SELECT id, name, name_ja FROM abilities")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		var abilities []Ability
+		for rows.Next() {
+			var ability Ability
+			if err := rows.Scan(&ability.ID, &ability.Name, &ability.NameJa); err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			abilities = append(abilities, ability)
+		}
+
+		if err := rows.Err(); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(abilities)
 	}))).Methods("GET")
 
 	fmt.Println("Server is running at http://localhost:8080")
