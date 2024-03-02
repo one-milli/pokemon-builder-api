@@ -2,7 +2,7 @@
 
 ## GET
 
-### /user-pokemons/{id}
+### /user-pokemons/{userId}
 
 育成済みポケモンの一覧取得
 
