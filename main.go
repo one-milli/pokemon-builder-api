@@ -33,6 +33,11 @@ type Ability struct {
 	NameJa string `json:"name_ja"`
 }
 
+var allowedOrigins = []string{
+	"http://localhost:5173",
+	"https://one-milli.github.io/pokemon-builder/",
+}
+
 func main() {
 	dbUser := os.Getenv("DB_USERNAME")
 	dbPassword := os.Getenv("DB_PASSWORD")
@@ -125,13 +130,23 @@ func main() {
 }
 
 func enableCORS(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		origin := r.Header.Get("Origin")
+
+		for _, allowedOrigin := range allowedOrigins {
+			if origin == allowedOrigin {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+				break
+			}
+		}
+
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
 		if r.Method == "OPTIONS" {
 			return
 		}
-		next(w, r)
-	}
+
+		next.ServeHTTP(w, r)
+	})
 }
