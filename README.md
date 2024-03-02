@@ -4,7 +4,7 @@
 
 ### /user-pokemons/{userId}
 
-育成済みポケモンの一覧取得
+`userId`の育成済みポケモンの一覧取得
 
 ### /abilities
 
