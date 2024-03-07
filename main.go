@@ -1,17 +1,14 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
-	"net"
 	"net/http"
 	"os"
 
-	"cloud.google.com/go/cloudsqlconn"
-	"github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 )
 
@@ -45,20 +42,14 @@ func main() {
 	dbUser := os.Getenv("DB_USERNAME")
 	dbPassword := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
-	instanceConnectionName := os.Getenv("INSTANCE_CONNECTION_NAME")
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
 
-	d, err := cloudsqlconn.NewDialer(context.Background())
-	if err != nil {
-		log.Fatalf("cloudsqlconn.NewDialer: %v", err)
-	}
-	mysql.RegisterDialContext("cloudsqlconn", func(ctx context.Context, addr string) (net.Conn, error) {
-		return d.Dial(ctx, instanceConnectionName)
-	})
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPassword, dbHost, dbPort, dbName)
 
-	dsn := fmt.Sprintf("%s:%s@cloudsqlconn/%s?parseTime=true", dbUser, dbPassword, dbName)
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
-		log.Fatalf("sql.Open: %v", err)
+		log.Fatal(err)
 	}
 	defer db.Close()
 
