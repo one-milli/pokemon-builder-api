@@ -5,8 +5,26 @@ services:
     ports:
       - "8080:8080"
     environment:
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME}
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${DB_PORT}
+      DB_USERNAME: user
+      DB_PASSWORD: password
+      DB_NAME: pokemon_builder
+      DB_HOST: db
+      DB_PORT: "3306"
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: pokemon_builder
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./pokemon_builder.sql:/docker-entrypoint-initdb.d/pokemon_builder.sql
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
